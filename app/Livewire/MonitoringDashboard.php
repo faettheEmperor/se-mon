@@ -218,7 +218,7 @@ class MonitoringDashboard extends Component
 
             $a->usaha_realisasi = $reports->sum('usaha_today');
             $a->ruta_realisasi = $reports->sum('ruta_today');
-            $a->progress_pct = $a->target_usaha > 0 ? ($a->usaha_realisasi / $a->target_usaha) * 100 : 0;
+            $a->progress_pct = $a->target_usaha > 0 ? (($a->usaha_realisasi + $a->ruta_realisasi) / $a->target_usaha) * 100 : 0;
             return $a;
         });
 
@@ -251,7 +251,7 @@ class MonitoringDashboard extends Component
             $reports = $a->dailyReports;
             $a->usaha_realisasi = $reports->sum('usaha_today');
             $a->ruta_realisasi = $reports->sum('ruta_today');
-            $a->progress_pct = $a->target_usaha > 0 ? ($a->usaha_realisasi / $a->target_usaha) * 100 : 0;
+            $a->progress_pct = $a->target_usaha > 0 ? (($a->usaha_realisasi + $a->ruta_realisasi) / $a->target_usaha) * 100 : 0;
             return $a;
         });
 
@@ -276,7 +276,7 @@ class MonitoringDashboard extends Component
                 $drillData = $villages->map(function ($v) use ($filtered) {
                     $subFiltered = $filtered->filter(fn($a) => $a->subsls->sls->iddesa === $v->iddesa);
                     $target = $subFiltered->sum('target_usaha');
-                    $realisasi = $subFiltered->sum('usaha_realisasi');
+                    $realisasi = $subFiltered->sum('usaha_realisasi') + $subFiltered->sum('ruta_realisasi');
                     $pct = $target > 0 ? ($realisasi / $target) * 100 : 0;
                     return [
                         'id' => $v->iddesa,
@@ -292,7 +292,7 @@ class MonitoringDashboard extends Component
                 $drillData = $slss->map(function ($s) use ($filtered) {
                     $subFiltered = $filtered->filter(fn($a) => $a->subsls->idsls === $s->idsls);
                     $target = $subFiltered->sum('target_usaha');
-                    $realisasi = $subFiltered->sum('usaha_realisasi');
+                    $realisasi = $subFiltered->sum('usaha_realisasi') + $subFiltered->sum('ruta_realisasi');
                     $pct = $target > 0 ? ($realisasi / $target) * 100 : 0;
                     return [
                         'id' => $s->idsls,
@@ -325,7 +325,7 @@ class MonitoringDashboard extends Component
                 $drillData = $pmls->map(function ($p) use ($filtered) {
                     $subFiltered = $filtered->filter(fn($a) => (int)$a->pml_id === (int)$p->id);
                     $target = $subFiltered->sum('target_usaha');
-                    $realisasi = $subFiltered->sum('usaha_realisasi');
+                    $realisasi = $subFiltered->sum('usaha_realisasi') + $subFiltered->sum('ruta_realisasi');
                     $pct = $target > 0 ? ($realisasi / $target) * 100 : 0;
                     return [
                         'id' => $p->id,
@@ -356,7 +356,7 @@ class MonitoringDashboard extends Component
                 $drillData = $villages->map(function ($v) use ($filtered) {
                     $subFiltered = $filtered->filter(fn($a) => $a->subsls->sls->iddesa === $v->iddesa);
                     $target = $subFiltered->sum('target_usaha');
-                    $realisasi = $subFiltered->sum('usaha_realisasi');
+                    $realisasi = $subFiltered->sum('usaha_realisasi') + $subFiltered->sum('ruta_realisasi');
                     $pct = $target > 0 ? ($realisasi / $target) * 100 : 0;
                     return [
                         'id' => $v->iddesa,
@@ -372,7 +372,7 @@ class MonitoringDashboard extends Component
                 $drillData = $slss->map(function ($s) use ($filtered) {
                     $subFiltered = $filtered->filter(fn($a) => $a->subsls->idsls === $s->idsls);
                     $target = $subFiltered->sum('target_usaha');
-                    $realisasi = $subFiltered->sum('usaha_realisasi');
+                    $realisasi = $subFiltered->sum('usaha_realisasi') + $subFiltered->sum('ruta_realisasi');
                     $pct = $target > 0 ? ($realisasi / $target) * 100 : 0;
                     return [
                         'id' => $s->idsls,
@@ -403,7 +403,7 @@ class MonitoringDashboard extends Component
                 $drillData = $districts->map(function ($d) use ($filtered) {
                     $subFiltered = $filtered->filter(fn($a) => $a->subsls->sls->village->idkec === $d->idkec);
                     $target = $subFiltered->sum('target_usaha');
-                    $realisasi = $subFiltered->sum('usaha_realisasi');
+                    $realisasi = $subFiltered->sum('usaha_realisasi') + $subFiltered->sum('ruta_realisasi');
                     $pct = $target > 0 ? ($realisasi / $target) * 100 : 0;
                     return [
                         'id' => $d->idkec,
@@ -591,7 +591,7 @@ class MonitoringDashboard extends Component
             $reports = $a->dailyReports;
             $a->usaha_realisasi = $reports->sum('usaha_today');
             $a->ruta_realisasi = $reports->sum('ruta_today');
-            $a->progress_pct = $a->target_usaha > 0 ? ($a->usaha_realisasi / $a->target_usaha) * 100 : 0;
+            $a->progress_pct = $a->target_usaha > 0 ? (($a->usaha_realisasi + $a->ruta_realisasi) / $a->target_usaha) * 100 : 0;
             return $a;
         });
         return $monitoringService->getOverallStats($mapped);

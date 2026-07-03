@@ -19,19 +19,19 @@ class LandingApiController extends Controller
             // Retrieve targets and sum of report realisasis in a highly optimized way
             $assignments = DB::table('assignments')
                 ->select('target_usaha')
-                ->selectRaw('(SELECT COALESCE(SUM(usaha_today), 0) FROM daily_reports WHERE daily_reports.assignment_id = assignments.id) as realisasi_usaha')
+                ->selectRaw('(SELECT COALESCE(SUM(usaha_today + ruta_today), 0) FROM daily_reports WHERE daily_reports.assignment_id = assignments.id) as realisasi_lapangan')
                 ->get();
 
             $totalTarget = $assignments->sum('target_usaha');
-            $totalRealisasiUsaha = $assignments->sum('realisasi_usaha');
-            $progress = $totalTarget > 0 ? round(($totalRealisasiUsaha / $totalTarget) * 100, 2) : 0.0;
+            $totalRealisasiLapangan = $assignments->sum('realisasi_lapangan');
+            $progress = $totalTarget > 0 ? round(($totalRealisasiLapangan / $totalTarget) * 100, 2) : 0.0;
 
             $countPcl = Pcl::count();
             $countPml = Pml::count();
 
             return [
                 'total_usaha' => (int)$totalTarget,
-                'realisasi' => (int)$totalRealisasiUsaha,
+                'realisasi' => (int)$totalRealisasiLapangan,
                 'progress' => (float)$progress,
                 'subsls' => 751, // fixed as requested
                 'pcl' => (int)$countPcl,
@@ -61,7 +61,7 @@ class LandingApiController extends Controller
         $progressData = DB::table('assignments')
             ->select('districts.idkec')
             ->selectRaw('SUM(assignments.target_usaha) as target')
-            ->selectRaw('COALESCE(SUM(reports.usaha_today), 0) as realisasi')
+            ->selectRaw('COALESCE(SUM(reports.usaha_today + reports.ruta_today), 0) as realisasi')
             ->join('subsls', 'assignments.idsubsls', '=', 'subsls.idsubsls')
             ->join('sls', 'subsls.idsls', '=', 'sls.idsls')
             ->join('villages', 'sls.iddesa', '=', 'villages.iddesa')
@@ -95,7 +95,7 @@ class LandingApiController extends Controller
         $breakdown = DB::table('assignments')
             ->select('villages.nmdesa')
             ->selectRaw('SUM(assignments.target_usaha) as target')
-            ->selectRaw('COALESCE(SUM(reports.usaha_today), 0) as realisasi')
+            ->selectRaw('COALESCE(SUM(reports.usaha_today + reports.ruta_today), 0) as realisasi')
             ->join('subsls', 'assignments.idsubsls', '=', 'subsls.idsubsls')
             ->join('sls', 'subsls.idsls', '=', 'sls.idsls')
             ->join('villages', 'sls.iddesa', '=', 'villages.iddesa')
@@ -121,7 +121,7 @@ class LandingApiController extends Controller
             return DB::table('assignments')
                 ->select('districts.idkec')
                 ->selectRaw('SUM(assignments.target_usaha) as target')
-                ->selectRaw('COALESCE(SUM(reports.usaha_today), 0) as realisasi')
+                ->selectRaw('COALESCE(SUM(reports.usaha_today + reports.ruta_today), 0) as realisasi')
                 ->join('subsls', 'assignments.idsubsls', '=', 'subsls.idsubsls')
                 ->join('sls', 'subsls.idsls', '=', 'sls.idsls')
                 ->join('villages', 'sls.iddesa', '=', 'villages.iddesa')

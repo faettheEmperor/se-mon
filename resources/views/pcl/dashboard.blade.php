@@ -95,7 +95,7 @@
                             $pcl = $pclAssignments->first()->pcl;
                             $pclName = $pcl->nama ?? 'Unknown PCL';
                             $pclTarget = $pclAssignments->sum('target_usaha');
-                            $pclRealisasi = $pclAssignments->sum('usaha_realisasi');
+                            $pclRealisasi = $pclAssignments->sum('usaha_realisasi') + $pclAssignments->sum('ruta_realisasi');
                             $pclProgress = $pclTarget > 0 ? ($pclRealisasi / $pclTarget) * 100 : 0;
                         @endphp
                         <div class="border border-gray-200 rounded-xl dark:border-gray-800 overflow-hidden">
@@ -112,7 +112,7 @@
                                 <div class="flex items-center gap-4">
                                     <div class="text-right">
                                         <span class="text-xs text-gray-500 dark:text-gray-400 block font-normal">Progres PCL</span>
-                                        <span class="font-bold text-sm text-gray-900 dark:text-white">{{ round($pclProgress, 1) }}% ({{ number_format($pclRealisasi) }}/{{ number_format($pclTarget) }} Usaha)</span>
+                                        <span class="font-bold text-sm text-gray-900 dark:text-white">{{ round($pclProgress, 1) }}% ({{ number_format($pclRealisasi) }}/{{ number_format($pclTarget) }})</span>
                                     </div>
                                     <div class="w-2.5 h-2.5 rounded-full
                                         {{ $pclProgress < 50 ? 'bg-red-500' : '' }}

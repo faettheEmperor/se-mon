@@ -70,7 +70,7 @@ class AssignmentRepository
      */
     public function getMonitoringQueryBuilder(): \Illuminate\Database\Eloquent\Builder
     {
-        $pctExpression = 'CASE WHEN target_usaha > 0 THEN ((SELECT COALESCE(SUM(usaha_today), 0) FROM daily_reports WHERE daily_reports.assignment_id = assignments.id) * 100.0 / target_usaha) ELSE 0 END';
+        $pctExpression = 'CASE WHEN target_usaha > 0 THEN ((SELECT COALESCE(SUM(usaha_today + ruta_today), 0) FROM daily_reports WHERE daily_reports.assignment_id = assignments.id) * 100.0 / target_usaha) ELSE 0 END';
 
         return Assignment::query()
             ->select('assignments.*')

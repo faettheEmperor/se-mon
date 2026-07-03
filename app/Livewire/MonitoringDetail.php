@@ -132,7 +132,7 @@ class MonitoringDetail extends Component
      */
     protected function buildQuery()
     {
-        $pctExpression = 'CASE WHEN target_usaha > 0 THEN ((SELECT COALESCE(SUM(usaha_today), 0) FROM daily_reports WHERE daily_reports.assignment_id = assignments.id) * 100.0 / target_usaha) ELSE 0 END';
+        $pctExpression = 'CASE WHEN target_usaha > 0 THEN ((SELECT COALESCE(SUM(usaha_today + ruta_today), 0) FROM daily_reports WHERE daily_reports.assignment_id = assignments.id) * 100.0 / target_usaha) ELSE 0 END';
 
         // Centered query builder from repository helper
         $query = $this->getAssignmentRepo()->getMonitoringQueryBuilder();

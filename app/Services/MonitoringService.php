@@ -21,7 +21,7 @@ class MonitoringService
         $totalRealisasiUsaha = $assignments->sum('usaha_realisasi');
         $totalRealisasiRuta = $assignments->sum('ruta_realisasi');
  
-        $percentage = $totalTarget > 0 ? ($totalRealisasiUsaha / $totalTarget) * 100 : 0;
+        $percentage = $totalTarget > 0 ? (($totalRealisasiUsaha + $totalRealisasiRuta) / $totalTarget) * 100 : 0;
  
         return [
             'total_target' => $totalTarget,
@@ -45,7 +45,7 @@ class MonitoringService
             ->map(function ($group, $idkab) {
                 $name = $group->first()->subsls->sls->village->district->nmkab ?? 'N/A';
                 $target = $group->sum('target_usaha');
-                $realisasi = $group->sum('usaha_realisasi');
+                $realisasi = $group->sum('usaha_realisasi') + $group->sum('ruta_realisasi');
                 $percentage = $target > 0 ? ($realisasi / $target) * 100 : 0;
  
                 return [
@@ -68,7 +68,7 @@ class MonitoringService
             ->map(function ($group, $idkec) {
                 $name = $group->first()->subsls->sls->village->district->nmkec ?? 'N/A';
                 $target = $group->sum('target_usaha');
-                $realisasi = $group->sum('usaha_realisasi');
+                $realisasi = $group->sum('usaha_realisasi') + $group->sum('ruta_realisasi');
                 $percentage = $target > 0 ? ($realisasi / $target) * 100 : 0;
  
                 return [
@@ -91,7 +91,7 @@ class MonitoringService
             ->map(function ($group, $iddesa) {
                 $name = $group->first()->subsls->sls->village->nmdesa ?? 'N/A';
                 $target = $group->sum('target_usaha');
-                $realisasi = $group->sum('usaha_realisasi');
+                $realisasi = $group->sum('usaha_realisasi') + $group->sum('ruta_realisasi');
                 $percentage = $target > 0 ? ($realisasi / $target) * 100 : 0;
  
                 return [
@@ -114,7 +114,7 @@ class MonitoringService
             ->map(function ($group, $idsls) {
                 $name = $group->first()->subsls->sls->nmsls ?? 'N/A';
                 $target = $group->sum('target_usaha');
-                $realisasi = $group->sum('usaha_realisasi');
+                $realisasi = $group->sum('usaha_realisasi') + $group->sum('ruta_realisasi');
                 $percentage = $target > 0 ? ($realisasi / $target) * 100 : 0;
  
                 return [
@@ -137,7 +137,7 @@ class MonitoringService
             ->map(function ($group, $pclId) {
                 $name = $group->first()->pcl->nama ?? 'N/A';
                 $target = $group->sum('target_usaha');
-                $realisasi = $group->sum('usaha_realisasi');
+                $realisasi = $group->sum('usaha_realisasi') + $group->sum('ruta_realisasi');
                 $percentage = $target > 0 ? ($realisasi / $target) * 100 : 0;
  
                 return [
@@ -160,7 +160,7 @@ class MonitoringService
             ->map(function ($group, $pmlId) {
                 $name = $group->first()->pml->nama ?? 'N/A';
                 $target = $group->sum('target_usaha');
-                $realisasi = $group->sum('usaha_realisasi');
+                $realisasi = $group->sum('usaha_realisasi') + $group->sum('ruta_realisasi');
                 $percentage = $target > 0 ? ($realisasi / $target) * 100 : 0;
  
                 return [
@@ -183,7 +183,7 @@ class MonitoringService
             ->map(function ($group, $idsubsls) {
                 $name = 'SubSLS ' . ($group->first()->subsls->kdsubsls ?? $idsubsls);
                 $target = $group->sum('target_usaha');
-                $realisasi = $group->sum('usaha_realisasi');
+                $realisasi = $group->sum('usaha_realisasi') + $group->sum('ruta_realisasi');
                 $percentage = $target > 0 ? ($realisasi / $target) * 100 : 0;
  
                 return [

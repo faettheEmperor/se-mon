@@ -327,20 +327,19 @@
 
                 <!-- Legend Overlay (legend - z-10) -->
                 <div
-                    class="absolute bottom-6 left-6 p-4 bg-white/95 backdrop-blur-md border border-orange-100 rounded-2xl z-10 text-xs shadow-lg flex flex-col gap-2.5 max-w-[220px] pointer-events-auto">
-                    <span class="font-bold text-gray-800 border-b border-orange-100 pb-1.5">Kategori Progres</span>
-                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded"
-                            style="background-color: #16a34a"></span><span class="text-gray-600 font-semibold">Tinggi / Selesai
-                            (80%+)</span></div>
-                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded"
-                            style="background-color: #f97316"></span><span class="text-gray-600 font-semibold">Sedang / Waspada
-                            (51% - 80%)</span></div>
-                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded"
-                            style="background-color: #f87171"></span><span class="text-gray-600 font-semibold">Rendah
-                            (21% - 50%)</span></div>
-                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded"
-                            style="background-color: #dc2626"></span><span class="text-gray-600 font-semibold">Perlu Perhatian
-                            (0% - 20%)</span></div>
+                    class="absolute bottom-6 left-6 p-4 bg-white/95 backdrop-blur-md border border-orange-100 rounded-2xl z-10 text-xs shadow-lg flex flex-col gap-2.5 min-w-[160px] pointer-events-auto">
+                    <span class="font-bold text-gray-800 border-b border-orange-100 pb-1.5">Skala Progres</span>
+                    <div class="flex items-stretch gap-3 h-32">
+                        <!-- Gradient Bar -->
+                        <div class="w-4 rounded-md shadow-inner border border-orange-200/50"
+                            style="background: linear-gradient(to top, #FFF7ED, #FED7AA, #FB923C, #F97316, #EA580C);"></div>
+                        <!-- Labels -->
+                        <div class="flex flex-col justify-between text-[10px] text-gray-600 font-semibold py-0.5">
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#EA580C]"></span>100% (Selesai)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#FB923C]"></span>50% (Sedang)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#FFF7ED] border border-orange-200"></span>0% (Mulai)</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Modal Village Breakdown Panel (modal - z-20) -->
@@ -503,7 +502,7 @@
                         <!-- Realisasi -->
                         <div
                             class="p-2.5 md:p-4 bg-white/80 border border-orange-100/85 rounded-2xl backdrop-blur-md shadow-md flex flex-col justify-center">
-                            <span class="text-[9px] md:text-xs text-gray-500 font-bold uppercase">Realisasi Usaha</span>
+                            <span class="text-[9px] md:text-xs text-gray-500 font-bold uppercase">Realisasi Lapangan</span>
                             <span class="text-lg md:text-2xl font-extrabold text-orange-600 mt-0.5 md:mt-1 leading-tight"
                                 x-text="Number(stats.realisasi).toLocaleString('id-ID')">0</span>
                         </div>
@@ -671,6 +670,42 @@
 
     <!-- Alpine.js Application Controller -->
     <script>
+        function getGradientColor(progress) {
+            const p = Math.max(0, Math.min(100, progress));
+            const stops = [
+                { pct: 0, r: 255, g: 247, b: 237 },    // #FFF7ED
+                { pct: 25, r: 254, g: 215, b: 170 },   // #FED7AA
+                { pct: 50, r: 251, g: 146, b: 60 },    // #FB923C
+                { pct: 75, r: 249, g: 115, b: 22 },    // #F97316
+                { pct: 100, r: 234, g: 88, b: 12 }     // #EA580C
+            ];
+
+            let lower = stops[0];
+            let upper = stops[stops.length - 1];
+
+            for (let i = 0; i < stops.length - 1; i++) {
+                if (p >= stops[i].pct && p <= stops[i+1].pct) {
+                    lower = stops[i];
+                    upper = stops[i+1];
+                    break;
+                }
+            }
+
+            const range = upper.pct - lower.pct;
+            const factor = range > 0 ? (p - lower.pct) / range : 0;
+
+            const r = Math.round(lower.r + factor * (upper.r - lower.r));
+            const g = Math.round(lower.g + factor * (upper.g - lower.g));
+            const b = Math.round(lower.b + factor * (upper.b - lower.b));
+
+            const toHex = (val) => {
+                const hex = val.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            };
+
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('semonLanding', () => ({
                 currentPanel: '{{ $errors->any() ? "login" : "home" }}',
@@ -822,10 +857,7 @@
                             const geojsonLayer = L.geoJSON(geojson, {
                                 style: function (feature) {
                                     const progress = feature.properties.progress || 0;
-                                    let fill = '#dc2626'; // Else (<=20)
-                                    if (progress > 80) fill = '#16a34a';
-                                    else if (progress > 50) fill = '#f97316';
-                                    else if (progress > 20) fill = '#f87171';
+                                    const fill = getGradientColor(progress);
 
                                     return {
                                         fillColor: fill,
@@ -838,16 +870,13 @@
                                 onEachFeature: (feature, layer) => {
                                     const props = feature.properties;
                                     const progress = props.progress || 0;
-                                    let progressColor = '#dc2626';
-                                    if (progress > 80) progressColor = '#16a34a';
-                                    else if (progress > 50) progressColor = '#f97316';
-                                    else if (progress > 20) progressColor = '#f87171';
+                                    const progressColor = getGradientColor(progress);
 
                                     layer.bindTooltip(
                                         `<div class='text-xs'>` +
                                         `<div class='font-extrabold text-gray-900 text-sm mb-1 border-b border-gray-100 pb-1'>Kec. ${props.nmkec}</div>` +
                                         `<div class='flex justify-between gap-6 mb-0.5 text-gray-600'><span>Target Usaha:</span><span class='font-bold text-gray-800'>${Number(props.target).toLocaleString('id-ID')}</span></div>` +
-                                        `<div class='flex justify-between gap-6 mb-0.5 text-gray-600'><span>Realisasi Usaha:</span><span class='font-bold text-gray-800'>${Number(props.realisasi).toLocaleString('id-ID')}</span></div>` +
+                                        `<div class='flex justify-between gap-6 mb-0.5 text-gray-600'><span>Realisasi Lapangan:</span><span class='font-bold text-gray-800'>${Number(props.realisasi).toLocaleString('id-ID')}</span></div>` +
                                         `<div class='flex justify-between gap-6 font-bold mt-1.5 pt-1.5 border-t border-gray-100 text-gray-800'><span>Progress:</span><span style='color: ${progressColor};'>${Number(props.progress).toFixed(2)}%</span></div>` +
                                         `</div>`,
                                         { sticky: true, className: 'map-tooltip' }

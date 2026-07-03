@@ -38,7 +38,7 @@ class DashboardController extends Controller
                 $a->usaha_realisasi = $a->dailyReports->sum('usaha_today');
                 $a->ruta_realisasi  = $a->dailyReports->sum('ruta_today');
                 $a->progress_pct    = $a->target_usaha > 0
-                    ? ($a->usaha_realisasi / $a->target_usaha) * 100
+                    ? (($a->usaha_realisasi + $a->ruta_realisasi) / $a->target_usaha) * 100
                     : 0;
                 return $a;
             });
@@ -66,7 +66,7 @@ class DashboardController extends Controller
                 $a->usaha_realisasi = (int) ($a->total_realisasi_usaha ?? 0);
                 $a->ruta_realisasi  = (int) ($a->total_realisasi_ruta ?? 0);
                 $a->progress_pct    = $a->target_usaha > 0
-                    ? ($a->usaha_realisasi / $a->target_usaha) * 100
+                    ? (($a->usaha_realisasi + $a->ruta_realisasi) / $a->target_usaha) * 100
                     : 0;
                 return $a;
             });
@@ -78,7 +78,7 @@ class DashboardController extends Controller
             $totalTarget = $assignments->sum('target_usaha');
             $totalRealisasiUsaha = $assignments->sum('usaha_realisasi');
             $totalRealisasiRuta = $assignments->sum('ruta_realisasi');
-            $percentage = $totalTarget > 0 ? ($totalRealisasiUsaha / $totalTarget) * 100 : 0;
+            $percentage = $totalTarget > 0 ? (($totalRealisasiUsaha + $totalRealisasiRuta) / $totalTarget) * 100 : 0;
 
             $stats = [
                 'total_target' => $totalTarget,
